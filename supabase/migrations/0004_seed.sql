@@ -39,7 +39,7 @@ update public.profiles set is_private = true where username = 'nadia';
 -- ============ Follows ============
 -- sara, rafi, nadia follow ahmad; ahmad follows sara; ahmad requests nadia (pending)
 insert into public.follows (follower_id, following_id, status)
-select a.id, b.id, s.status
+select a.id, b.id, v.status::public.follow_status
 from (values
   ('sara',  'ahmad', 'accepted'),
   ('rafi',  'ahmad', 'accepted'),
