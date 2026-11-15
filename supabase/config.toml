@@ -1,0 +1,10 @@
+# SubShare — Supabase CLI config.
+# Only used for `supabase functions deploy`. Database migrations run through
+# the dashboard SQL editor (see docs/supabase-setup.md).
+project_id = "subshare"
+
+[functions.platform-oauth-callback]
+# Google redirects the user's browser here without a Supabase JWT, so
+# the platform-level JWT check must be off for this function only. Its own
+# security comes from the HMAC-signed state parameter it verifies itself.
+verify_jwt = false
