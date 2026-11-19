@@ -12,7 +12,14 @@
 -- ============================================================
 
 -- ============ Demo auth users ============
+-- NOTE: GoTrue cannot authenticate rows it didn't create itself unless
+-- instance_id and every token field are set: instance_id must be the hosted
+-- zero-UUID (NULL → "Invalid login credentials"), and the token strings must
+-- be '' not NULL (NULL → "Database error querying schema" at login).
 insert into auth.users (id, aud, role, email, encrypted_password, email_confirmed_at,
+                        instance_id, confirmation_token, recovery_token, email_change,
+                        email_change_token_new, email_change_token_current,
+                        phone_change_token, reauthentication_token,
                         raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
 select
   gen_random_uuid(),
@@ -21,6 +28,8 @@ select
   t.email,
   extensions.crypt('subshare123', extensions.gen_salt('bf')),
   now(),
+  '00000000-0000-0000-0000-000000000000',
+  '', '', '', '', '', '', '',
   '{"provider":"email","providers":["email"]}'::jsonb,
   jsonb_build_object('username', t.username, 'display_name', t.display_name),
   now(),

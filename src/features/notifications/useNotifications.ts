@@ -19,12 +19,21 @@ export function useUnreadCount(enabled: boolean) {
   })
 }
 
-/** Live updates: new notifications arrive via Supabase Realtime. */
+/** Live updates: new notifications arrive via Supabase Realtime.
+ *
+ * AppShell calls this once for the whole app. If any other component calls it
+ * again for the same user, we must NOT re-attach `postgres_changes` callbacks
+ * to an already-subscribed channel — supabase-js throws
+ * "cannot add postgres_changes callbacks ... after subscribe()", which would
+ * crash the whole React tree (blank page). So: reuse the existing channel. */
 export function useNotificationsRealtime(uid: string | null) {
   const queryClient = useQueryClient()
 
   useEffect(() => {
     if (!uid) return
+    // supabase-js stores the topic with a `realtime:` prefix.
+    const topic = `realtime:notifications-${uid}`
+    if (supabase.getChannels().some((c) => c.topic === topic)) return
     const channel = supabase
       .channel(`notifications-${uid}`)
       .on(

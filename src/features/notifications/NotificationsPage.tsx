@@ -12,7 +12,7 @@ import { ErrorState } from '../../components/ui/ErrorState'
 import { RowSkeleton } from '../../components/ui/Skeleton'
 import { useToast } from '../../components/ui/Toast'
 import { useAuth } from '../auth/AuthContext'
-import { useNotifications, useNotificationsRealtime, useUnreadCount } from './useNotifications'
+import { useNotifications, useUnreadCount } from './useNotifications'
 import type { NotificationType } from '../../types/database'
 
 const TYPE_META: Record<NotificationType, { icon: LucideIcon; classes: string }> = {
@@ -51,7 +51,6 @@ function notificationHref(payload: Record<string, unknown>, actorUsername?: stri
 export function NotificationsPage() {
   const { user } = useAuth()
   const uid = user?.id ?? null
-  useNotificationsRealtime(uid)
   const { data: unread = 0 } = useUnreadCount(uid !== null)
 
   const notifications = useNotifications()
@@ -120,7 +119,7 @@ export function NotificationsPage() {
 
       <div className="space-y-2">
         {notifications.data?.map((n) => {
-          const meta = TYPE_META[n.type]
+          const meta = TYPE_META[n.type] ?? { icon: BellOff, classes: 'bg-neutral-100 text-neutral-600' }
           const payload = (n.payload ?? {}) as Record<string, unknown>
           const actorName = n.actor?.display_name ?? String(payload['display_name'] ?? 'Someone')
           const href = notificationHref(payload, n.actor?.username)
